@@ -15,6 +15,18 @@ function Remove-BindingRedirects {
     return $true;
 }
 
+function Is-Empty-Configuration {
+    param (
+        [xml]$ConfigXml
+    )
+        if ($ConfigXml.configuration.ChildNodes.Count -eq 0) {
+            return $true
+        }
+        return $false
+
+    
+}
+
 # Get all app.config files in the current directory and subdirectories
 $configFiles = Get-ChildItem -Recurse -Filter app.config
 
@@ -29,6 +41,12 @@ foreach ($file in $configFiles) {
         Write-Host "Removed binding redirects from $($file.FullName)"
     } else {
         Write-Host "No binding redirects found in $($file.FullName)"
+    }
+
+    $isEmpty = Is-Empty-Configuration $xml
+    if($isEmpty){
+        Write-Host "Deleting empty configuration $($file.FullName)"
+        Remove-Item $file
     }
 }
 
